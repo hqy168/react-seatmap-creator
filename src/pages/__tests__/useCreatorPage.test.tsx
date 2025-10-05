@@ -1,7 +1,27 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
-// The hook under test
+// Make tests isolated: mock the seeded data and toast library
+jest.mock('../../data/data.json', () => ({
+  id: 'seed-map',
+  name: 'seed',
+  venueId: 1,
+  venueName: 'test',
+  blockId: 1,
+  blockName: 'general',
+  stageText: 'STAGE',
+  seatMapData: [
+    { id: 's1', row: 'A', label: '1', type: 'seat' },
+    { id: 's2', row: 'A', label: '2', type: 'seat' },
+  ],
+}));
+
+jest.mock('react-hot-toast', () => ({
+  __esModule: true,
+  default: { success: jest.fn(), error: jest.fn() },
+}));
+
+// The hook under test (import after mocks so it picks up mocked modules)
 import useCreatorPage from '../useCreatorPage';
 
 /**
@@ -22,7 +42,12 @@ const TestComponent: React.FC = () => {
   );
 };
 
-describe('useCreatorPage (smoke + simple actions)', () => {
+describe('useCreatorPage (isolated unit)', () => {
+  beforeEach(() => {
+    // clear Jest module cache to ensure mocks are applied freshly
+    jest.resetModules();
+  });
+
   test('loads initial data and exposes rows', async () => {
     render(<TestComponent />);
 
@@ -31,8 +56,8 @@ describe('useCreatorPage (smoke + simple actions)', () => {
 
     const rows = screen.getByTestId('rows');
 
-    // There should be at least one row from the seeded data
-    expect(Number(rows.textContent || '0')).toBeGreaterThan(0);
+    // There should be the 1 seeded row 'A'
+    expect(Number(rows.textContent || '0')).toBe(1);
   });
 
   test('addEmptyRow increases row count', async () => {
