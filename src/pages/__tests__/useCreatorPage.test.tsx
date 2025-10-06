@@ -1,28 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
-// Make tests isolated: mock the seeded data and toast library
-jest.mock('../../data/data.json', () => ({
-  id: 'seed-map',
-  name: 'seed',
-  venueId: 1,
-  venueName: 'test',
-  blockId: 1,
-  blockName: 'general',
-  stageText: 'STAGE',
-  seatMapData: [
-    { id: 's1', row: 'A', label: '1', type: 'seat' },
-    { id: 's2', row: 'A', label: '2', type: 'seat' },
-    { id: 's3', row: 'B', label: '1', type: 'seat' },
-  ],
-}));
+// Use the manual mock file for data.json by requiring it inside the factory
+jest.mock('../../data/data.json', () => require('../../__mocks__/data.json.js'));
 
-jest.mock('react-hot-toast', () => ({
-  __esModule: true,
-  default: { success: jest.fn(), error: jest.fn() },
-}));
-
-// import the mocked toast to assert calls
+// import the mocked toast to assert calls (global mock from setupTests)
 import toast from 'react-hot-toast';
 
 // The hook under test (import after mocks so it picks up mocked modules)
