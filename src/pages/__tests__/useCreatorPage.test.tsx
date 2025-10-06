@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
-// Use the manual mock file for data.json by requiring it inside the factory
-jest.mock('../../data/data.json', () => require('../../__mocks__/data.json.js'));
+// Tests rely on global mocks declared in src/setupTests.ts
 
 // import the mocked toast to assert calls (global mock from setupTests)
 import toast from 'react-hot-toast';
