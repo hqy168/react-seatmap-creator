@@ -13,6 +13,7 @@ jest.mock('../../data/data.json', () => ({
   seatMapData: [
     { id: 's1', row: 'A', label: '1', type: 'seat' },
     { id: 's2', row: 'A', label: '2', type: 'seat' },
+    { id: 's3', row: 'B', label: '1', type: 'seat' },
   ],
 }));
 
@@ -20,6 +21,9 @@ jest.mock('react-hot-toast', () => ({
   __esModule: true,
   default: { success: jest.fn(), error: jest.fn() },
 }));
+
+// import the mocked toast to assert calls
+import toast from 'react-hot-toast';
 
 // The hook under test (import after mocks so it picks up mocked modules)
 import useCreatorPage from '../useCreatorPage';
@@ -33,10 +37,32 @@ const TestComponent: React.FC = () => {
 
   return (
     <div>
-      <div data-testid="loading">{api.loading ? 'loading' : 'ready'}</div>
-      <div data-testid="rows">{api.rows.length}</div>
-      <button data-testid="add-empty" onClick={() => api.addEmptyRow()}>
+      <div data-testid='loading'>{api.loading ? 'loading' : 'ready'}</div>
+      <div data-testid='rows'>{api.rows.length}</div>
+      <div data-testid='row-keys'>{api.rows.map((r) => r[0]).join(',')}</div>
+
+      <button data-testid='add-empty' onClick={() => api.addEmptyRow()}>
         Add empty
+      </button>
+
+      <button data-testid='rename-conflict' onClick={() => api.editSeatName('A', 's2', '1')}>
+        Rename conflict
+      </button>
+
+      <button
+        data-testid='reorder-rows'
+        onClick={() =>
+          api.handleOnDragEnd({
+            source: { index: 0 },
+            destination: { index: 1 },
+          } as any)
+        }
+      >
+        Reorder rows
+      </button>
+
+      <button data-testid='add-seated' onClick={() => api.addSeatedRow('A')}>
+        Add seated
       </button>
     </div>
   );
@@ -44,8 +70,8 @@ const TestComponent: React.FC = () => {
 
 describe('useCreatorPage (isolated unit)', () => {
   beforeEach(() => {
-    // clear Jest module cache to ensure mocks are applied freshly
-    jest.resetModules();
+    // clear mock call history between tests
+    jest.clearAllMocks();
   });
 
   test('loads initial data and exposes rows', async () => {
@@ -56,8 +82,8 @@ describe('useCreatorPage (isolated unit)', () => {
 
     const rows = screen.getByTestId('rows');
 
-    // There should be the 1 seeded row 'A'
-    expect(Number(rows.textContent || '0')).toBe(1);
+  // There should be 2 seeded rows 'A' and 'B'
+  expect(Number(rows.textContent || '0')).toBe(2);
   });
 
   test('addEmptyRow increases row count', async () => {
@@ -72,5 +98,47 @@ describe('useCreatorPage (isolated unit)', () => {
 
     // after clicking, the rows count should increase by 1
     await waitFor(() => expect(Number(rows.textContent || '0')).toBe(before + 1));
+  });
+
+  test('editSeatName conflict triggers toast and does not change labels', async () => {
+    render(<TestComponent />);
+
+    await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('ready'));
+
+    // attempt to rename seat s2 to label '1' (conflicts with s1)
+    fireEvent.click(screen.getByTestId('rename-conflict'));
+
+    // toast.error should be called
+    expect(toast.error).toHaveBeenCalled();
+  });
+
+  test('handleOnDragEnd reorders rows', async () => {
+    render(<TestComponent />);
+
+    await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('ready'));
+
+    const keysBefore = screen.getByTestId('row-keys').textContent;
+
+    // initial order should be 'A,B'
+    expect(keysBefore).toBe('A,B');
+
+    fireEvent.click(screen.getByTestId('reorder-rows'));
+
+    // after reordering, keys should be 'B,A'
+    await waitFor(() => expect(screen.getByTestId('row-keys').textContent).toBe('B,A'));
+  });
+
+  test('addSeatedRow rejects duplicate and triggers toast', async () => {
+    render(<TestComponent />);
+
+    await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('ready'));
+
+    const before = Number(screen.getByTestId('rows').textContent || '0');
+
+    fireEvent.click(screen.getByTestId('add-seated'));
+
+    // duplicate row name should trigger toast.error and rows should be unchanged
+    expect(toast.error).toHaveBeenCalled();
+    expect(Number(screen.getByTestId('rows').textContent || '0')).toBe(before);
   });
 });
