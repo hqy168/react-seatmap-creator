@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run staged files through Prettier and ESLint autofix
+npx lint-staged
