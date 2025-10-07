@@ -62,9 +62,8 @@ describe('useCreatorPage (isolated unit)', () => {
     await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('ready'));
 
     const rows = screen.getByTestId('rows');
-
-  // There should be 2 seeded rows 'A' and 'B'
-  expect(Number(rows.textContent || '0')).toBe(2);
+    // There should be 2 seeded rows 'A' and 'B'
+    expect(Number(rows.textContent || '0')).toBe(2);
   });
 
   test('addEmptyRow increases row count', async () => {
