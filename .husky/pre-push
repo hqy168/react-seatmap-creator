@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run the test suite before allowing a push. Fail the push on test failures.
+npm test -- --watchAll=false
