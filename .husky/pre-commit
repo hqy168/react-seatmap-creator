@@ -1,5 +1,10 @@
+
 #!/usr/bin/env sh
 . "$(dirname "$0")/_/husky.sh"
 
 # Run staged files through Prettier and ESLint autofix
 npx lint-staged
+
+# After auto-fix, fail the commit if any lint warnings or errors remain
+# (this enforces a clean lint state in PRs)
+npm run eslint -- --max-warnings=0
