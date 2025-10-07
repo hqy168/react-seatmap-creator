@@ -124,8 +124,8 @@ If you'd like, I can:
 
 - Add a lint/build job to CI as a separate workflow.
 - Align testing libraries with React 19 (upgrade/downgrade) to remove the legacy-peer-deps fallback.
-
 ````
+
 # React Seat Map Creator
 
 Welcome to the **React Seat Map Creator** – an intuitive and powerful tool for managing seating arrangements at events, concerts, and venues! This application allows event organizers and administrators to design seating layouts with ease, featuring dynamic functionalities for adding, removing, and customizing rows and seats. Whether you're setting up for a concert, theater production, or conference, this tool simplifies the process of managing your venue's seating.
