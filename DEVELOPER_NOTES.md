@@ -63,6 +63,30 @@ If you choose option 1, update `package.json` and run `npm install` (without `--
   - Add an automated workflow job for lint/build alongside tests.
   - Propose a concrete dependency upgrade plan to move off the fallback.
 
+## Git hooks (Husky)
+
+This repository uses Husky and lint-staged to run pre-commit and pre-push checks:
+
+- Pre-commit (`.husky/pre-commit`): Runs `lint-staged` which executes Prettier and `eslint --fix` on staged files, then enforces `eslint --max-warnings=0`. Commits will be blocked if lint issues remain after auto-fix.
+- Pre-push (`.husky/pre-push`): Runs the full test suite (`npm test -- --watchAll=false`) and blocks the push on test failures.
+
+How to initialize hooks locally:
+
+```bash
+npm install
+# or, if you hit peer-dep issues:
+npm install --legacy-peer-deps
+```
+
+The `prepare` script (`husky install`) runs automatically on `npm install` and creates the `.husky/` hooks locally.
+
+Bypassing hooks (not recommended):
+
+- Skip pre-commit hooks: `git commit --no-verify`
+- Skip pre-push hooks: `git push --no-verify`
+
+Use these flags sparingly and only when necessary (e.g., emergency fixes).
+
 ---
 
 Last updated: 2025-10-06
