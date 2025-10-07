@@ -28,7 +28,8 @@ jobs:
 
       - name: Run ESLint
         run: |
-          npm run eslint || true
+          # Fail the job on any lint errors or warnings
+          npm run eslint -- --max-warnings=0
 
       - name: Build
         run: |
